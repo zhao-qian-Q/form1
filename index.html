@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap-3.3.7.css">
+    <link rel="stylesheet" href="./css/base.css">
+</head>
+
+<body>
+    <div id="app">
+
+        <!-- 添加头部 -->
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">添加品牌</h3>
+            </div>
+            <!-- 添加form-inline让文字和输入框在一行上 -->
+            <div class="panel-body form-inline container">
+                
+                <label for="">
+                      ID:
+                    <input type="number" class="form-control" v-model="id" v-color='"red"'>
+
+                </label>
+
+                <label for="">
+                    name:
+                    <!-- keyup.enter绑定鼠标事件，输入完姓名enter建提交 -->
+                    <!-- v-focus 进入页面，焦点定到姓名输入框 -->
+                    <input type="text" class="form-control" v-model="name" @keyup.enter='add' v-focus v-color='"green"'>
+                </label>
+                <label for="">
+                    <input type="button" class="btn btn-primary" value="添加" @click='add'>
+                </label>
+                <label for="">
+                    搜索关键字：
+                    <input type="text" class="form-control" v-model="keywords">
+
+
+                </label>
+            </div>
+        </div>
+
+        <!-- 使用bs快捷键  bs3-table -->
+        <div class="container">
+            <table class="table table-bordered table-hover ">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>name</th>
+                        <th>ctime</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for='(item,index) in search(keywords)'>
+                        <td>{{item.id}}</td>
+                        <td v-color='"blue"'>{{item.name}}</td>
+                        <td>{{item.ctime|dataFormat}}</td>
+                        <td>
+                            <a href="#" @click="del(index)">delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        
+
+    </div>
+</body>
+<script src="./lib/vue-2.4.0.js"></script>
+<script>
+     // 全局配置指令   v-xxx  Vue.directive(el,function(){})   el是我们获取的元素
+    // 对象中有3个钩子函数（bind,inserted,update）每个钩子子函数中参数有两个，一个是el
+    // 注意：只要是操作js的，name需要吧方法写到inserted里面
+    // 如果只是操作属性，只添加到bind方法中即可
+    Vue.directive('focus', {
+        bind: function (el, binding) {
+            el.focus()
+        },
+        inserted: function (el, binding) {
+            el.focus()
+
+        },
+        update: function (el, binding) {
+
+        }
+
+    })
+
+    Vue.directive('color', {
+        bind: function (el, binding) {
+            el.style.color = binding.value
+
+        },
+        inserted: function (el, binding) {
+
+
+        },
+        update: function (el, binding) {
+
+        }
+
+    })
+  
+
+    // 配置键盘事件，
+    Vue.config.keyCodes.enter ;
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            id: '',
+            name: '',
+            keywords: '',
+            list: [
+                { id: 1, name: '苹果', ctime: new Date() },
+                { id: 2, name: '橘子', ctime: new Date() },
+                { id: 3, name: '桃子', ctime: new Date() }
+            ]
+        },
+        methods: {
+            add() {
+                if (this.id == null) {
+                    alert('请输入id')
+                } else if (this.name == null) {
+                    alert('请输入姓名')
+
+                }
+                else {
+                    this.list.push({ id: this.id, name: this.name, ctime: new Date() });
+                    this.id = null;
+                    this.name = null
+                }
+
+
+            },
+            del(index) {
+                this.list.some((item, i) => {
+                    if (i === index) {
+                        this.list.splice(index, 1)
+                        return true
+                    }
+                })
+            },
+            search(keywords) {
+                return this.list.filter(item => {
+                    if (item.name.includes(keywords)) {
+                        return item
+                    }
+                })
+            }
+
+        },
+        filters: {
+            dataFormat: function () {
+                // 补0操作   ES6  String.prototype.padStart(maxlength,fillString)
+                // maxlength  要填充的长度  fillString 要填充的内容
+                var dt = new Date();
+                var year = dt.getFullYear();
+                var month = (dt.getMonth() + 1).toString().padStart(2, '0');
+                var day = dt.getDate().toString().padStart(2, '0');
+
+                var hour = dt.getHours().toString().padStart(2, '0');
+                var min = dt.getMinutes().toString().padStart(2, '0');
+                var sec = dt.getSeconds().toString().padStart(2, '0');
+
+                return `${year}-${month}-${day}   ${hour}:${min}:${sec}`
+
+            }
+
+        }
+
+    })
+</script>
+
+</html>
